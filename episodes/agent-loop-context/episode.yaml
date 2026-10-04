@@ -1,0 +1,17 @@
+id: agent-loop-context
+title: "What does an agent actually see?"
+audience: "Learners who know basic Python and have seen a tool-using model"
+learning_objectives:
+  - "Trace request, context selection, tool call, observation, and stopping as separate events"
+  - "Predict why an over-broad context packet can produce an unverifiable action"
+misconception: "A model sees the whole repository and a tool call is the same as a verified result"
+source: source/context_budget.py
+trace: trace.json
+prediction_checkpoints:
+  - event: context-selection
+    prompt: "Which file should be included to answer the status question?"
+  - event: tool-result
+    prompt: "What evidence is still missing after the tool returns?"
+verification: checks/verify_episode.py
+transcript: transcript.md
+license: CC-BY-4.0

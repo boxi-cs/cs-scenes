@@ -1,0 +1,20 @@
+{
+  "schema_version": "trace/v0.1",
+  "trace_id": "agent-loop-context-correct",
+  "title": "A bounded context produces inspectable evidence",
+  "seed": 7,
+  "source": {"file": "source/context_budget.py", "function": "select_context"},
+  "events": [
+    {"id": "request", "logical_time": 0, "actor": "controller", "operation": "receive_request", "source_span": {"file": "source/context_budget.py", "line": 7}, "state_delta": {"question": "Why is the dashboard status stale?"}, "observation": "The question is bounded to one status path.", "causal_parents": [], "assertions": ["question-bounded"]},
+    {"id": "context-selection", "logical_time": 1, "actor": "controller", "operation": "select_context", "source_span": {"file": "source/context_budget.py", "line": 12}, "state_delta": {"budget": 2, "selected": ["status_view.py", "status_service.py"]}, "observation": "Two relevant files are selected and the test file remains visible as omitted evidence.", "causal_parents": ["request"], "assertions": ["context-bounded"]},
+    {"id": "tool-call", "logical_time": 2, "actor": "agent", "operation": "request_read", "source_span": {"file": "source/context_budget.py", "line": 14}, "state_delta": {"tool": "read", "path": "status_service.py"}, "observation": "The agent requests one read within the declared boundary.", "causal_parents": ["context-selection"], "assertions": ["tool-within-boundary"]},
+    {"id": "tool-result", "logical_time": 3, "actor": "tool", "operation": "return_observation", "source_span": {"file": "source/context_budget.py", "line": 15}, "state_delta": {"result": "cache_age_check"}, "observation": "The result identifies a likely cache-age check; a test is still needed.", "causal_parents": ["tool-call"], "assertions": ["evidence-requested"]}
+  ],
+  "assertions": [
+    {"id": "question-bounded", "kind": "scope", "description": "The request names one status path.", "event_id": "request", "status": "pass", "evidence": "The synthetic question is fixed in the fixture."},
+    {"id": "context-bounded", "kind": "context", "description": "The context stays within budget 2.", "event_id": "context-selection", "status": "pass", "evidence": "selected has length 2 and omitted evidence is explicit."},
+    {"id": "tool-within-boundary", "kind": "permission", "description": "The tool reads only a selected file.", "event_id": "tool-call", "status": "pass", "evidence": "path is status_service.py."},
+    {"id": "evidence-requested", "kind": "verification", "description": "The observation does not claim a fix without a test.", "event_id": "tool-result", "status": "pass", "evidence": "The transcript asks for a regression check."}
+  ],
+  "text_fallback": "Ask which file is selected, follow the bounded tool call, and notice that an observation is not yet a verified fix."
+}
